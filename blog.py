@@ -87,5 +87,11 @@ class Edit:
 
 app = web.application(urls, globals())
 
+if web.config.get('_session') is None: # from http://webpy.org/cookbook/session_with_reloader
+    session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
+    web.config._session = session
+else:
+    session = web.config._session
+
 if __name__ == '__main__':
     app.run()
