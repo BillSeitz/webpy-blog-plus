@@ -2,6 +2,7 @@
 import web
 import model
 
+
 ### Url mappings
 
 urls = (
@@ -45,7 +46,6 @@ def csrf_protected(f):
         return f(*args,**kwargs)
     return decorated
 
-t_globals['csrf_token'] = csrf_token()
 render = web.template.render('templates', base='base', globals=t_globals)
 
 
@@ -78,6 +78,7 @@ class New:
     )
 
     def GET(self):
+    	t_globals['csrf_token'] = csrf_token() 
         form = self.form()
         return render.new(form)
         
