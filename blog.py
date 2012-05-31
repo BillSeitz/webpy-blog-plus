@@ -93,6 +93,7 @@ class New:
 
 class Delete:
 
+    @csrf_protected # Verify this is not CSRF, or fail
     def POST(self, id):
         model.del_post(int(id))
         raise web.seeother('/')
@@ -101,12 +102,13 @@ class Delete:
 class Edit:
 
     def GET(self, id):
+    	t_globals['csrf_token'] = csrf_token() 
         post = model.get_post(int(id))
         form = New.form()
         form.fill(post)
         return render.edit(post, form)
 
-
+    @csrf_protected # Verify this is not CSRF, or fail
     def POST(self, id):
         form = New.form()
         post = model.get_post(int(id))
