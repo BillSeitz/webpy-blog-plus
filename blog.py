@@ -2,9 +2,7 @@
 import web
 import model
 
-
-### Url mappings
-
+### Define urls """
 urls = (
     '/', 'Index',
     '/view/(\d+)', 'View',
@@ -13,21 +11,21 @@ urls = (
     '/edit/(\d+)', 'Edit',
 )
 
-
-### Templates
-t_globals = {
-    'datestr': web.datestr
-}
-
-
-app = web.application(urls, globals())
-
+### Define session
+"""
+TO-DO: session is defined this way as a workaround --should add handler when web.config.debug = False
+"""
 if web.config.get('_session') is None: # from http://webpy.org/cookbook/session_with_reloader
-    session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
+    session = web.session.Session(app, web.session.DiskStore('sessions'))
     web.config._session = session
 else:
     session = web.config._session
 
+### Define template base and pass some globals
+render = web.template.render('templates', base='base', globals={'csrf_token':csrf_token, 'datestr': web.datestr})
+
+
+### Cross-site request forgery protection
 def csrf_token():
     if not session.has_key('csrf_token'):
         from uuid import uuid4
@@ -37,7 +35,7 @@ def csrf_token():
 def csrf_protected(f):
     def decorated(*args,**kwargs):
         inp = web.input()
-        if not (inp.has_key('csrf_token') and inp.csrf_token==session.pop('csrf_token',None)):
+        if not (inp.has_key('csrf_token') and inp.csrf_token==session['csrf_token']):
             raise web.HTTPError(
                 "400 Bad request",
                 {'content-type':'text/html'},
@@ -46,9 +44,7 @@ def csrf_protected(f):
         return f(*args,**kwargs)
     return decorated
 
-render = web.template.render('templates', base='base', globals=t_globals)
-
-
+### Class Index - renders main page with list of entries, and links to post new ones.
 class Index:
 
     def GET(self):
@@ -56,7 +52,7 @@ class Index:
         posts = model.get_posts()
         return render.index(posts)
 
-
+### Class View - renders singular entry
 class View:
 
     def GET(self, id):
@@ -64,7 +60,7 @@ class View:
         post = model.get_post(int(id))
         return render.view(post)
 
-
+### Class New - renders form to create new entry and handles POST request to add it the database
 class New:
 
     form = web.form.Form(
@@ -78,7 +74,6 @@ class New:
     )
 
     def GET(self):
-    	t_globals['csrf_token'] = csrf_token() 
         form = self.form()
         return render.new(form)
         
@@ -90,7 +85,7 @@ class New:
         model.new_post(form.d.title, form.d.content)
         raise web.seeother('/')
 
-
+### Class Delete - handles POST request to delete entry by id
 class Delete:
 
     @csrf_protected # Verify this is not CSRF, or fail
@@ -98,11 +93,10 @@ class Delete:
         model.del_post(int(id))
         raise web.seeother('/')
 
-
+### Class Edit - renders form to edit entries by id and handles POST request to update entry in database
 class Edit:
 
     def GET(self, id):
-    	t_globals['csrf_token'] = csrf_token() 
         post = model.get_post(int(id))
         form = New.form()
         form.fill(post)
@@ -117,6 +111,7 @@ class Edit:
         model.update_post(int(id), form.d.title, form.d.content)
         raise web.seeother('/')
 
-
+### If module is called directly, run development server
 if __name__ == '__main__':
+    app = web.application(urls, globals())
     app.run()
