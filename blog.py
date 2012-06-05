@@ -11,6 +11,8 @@ urls = (
     '/edit/(\d+)', 'Edit',
 )
 
+app = web.application(urls, globals())
+
 ### Define session
 """
 TO-DO: session is defined this way as a workaround --should add handler when web.config.debug = False
@@ -20,10 +22,6 @@ if web.config.get('_session') is None: # from http://webpy.org/cookbook/session_
     web.config._session = session
 else:
     session = web.config._session
-
-### Define template base and pass some globals
-render = web.template.render('templates', base='base', globals={'csrf_token':csrf_token, 'datestr': web.datestr})
-
 
 ### Cross-site request forgery protection
 def csrf_token():
@@ -43,6 +41,9 @@ def csrf_protected(f):
 <a href="">Back to the form</a>.""") # Provide a link back to the form
         return f(*args,**kwargs)
     return decorated
+
+### Define template base and pass some globals
+render = web.template.render('templates', base='base', globals={'csrf_token':csrf_token, 'datestr': web.datestr})
 
 ### Class Index - renders main page with list of entries, and links to post new ones.
 class Index:
@@ -113,5 +114,4 @@ class Edit:
 
 ### If module is called directly, run development server
 if __name__ == '__main__':
-    app = web.application(urls, globals())
     app.run()
