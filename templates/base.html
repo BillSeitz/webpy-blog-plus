@@ -15,7 +15,12 @@ $def with (page)
 <ul id="menu">
     <li><a href="/">Home</a></li>
     <li><a href="/new">New Post</a></li>
-    <li>User: $user_name()</li>
+    <li>
+    $if user_name():
+    	User: $user_name() - <a href="/logout">Log out</a>
+    $else:
+    	<a href="/login_fake/BillS">Log in</a>
+    </li>
 </ul>
 
 $:page
