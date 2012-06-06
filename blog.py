@@ -9,6 +9,8 @@ urls = (
     '/new', 'New',
     '/delete/(\d+)', 'Delete',
     '/edit/(\d+)', 'Edit',
+    '/login_fake/(.+)', 'LoginFake',
+    '/logout', 'LogOut',
 )
 
 app = web.application(urls, globals())
@@ -42,8 +44,13 @@ def csrf_protected(f):
         return f(*args,**kwargs)
     return decorated
 
+def user_name():
+	if not session.has_key('user_name'):
+		session.user_name = None
+	return session.user_name
+
 ### Define template base and pass some globals
-render = web.template.render('templates', base='base', globals={'csrf_token':csrf_token, 'datestr': web.datestr})
+render = web.template.render('templates', base='base', globals={'csrf_token': csrf_token, 'datestr': web.datestr, 'user_name': user_name})
 
 ### Class Index - renders main page with list of entries, and links to post new ones.
 class Index:
@@ -112,6 +119,18 @@ class Edit:
         model.update_post(int(id), form.d.title, form.d.content)
         raise web.seeother('/')
 
+class LoginFake:
+
+	def GET(self, name):
+		session.user_name = name
+		return "Hello, %s!" % (session.user_name)
+		
+class LogOut:
+
+	def GET(self):
+		session.user_name = None
+		return "Now I think you are %s" % (session.user_name)
+		
 ### If module is called directly, run development server
 if __name__ == '__main__':
     app.run()
