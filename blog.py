@@ -67,7 +67,7 @@ class Post:
     def GET(self, id):
         """ View single post """
         post = model.post(int(id))
-        return render.view(post)
+        return render.post(post)
 
 ### Class Create - renders form to create new entry and handles POST request to add it the database
 class Create:
@@ -84,7 +84,7 @@ class Create:
 
     def GET(self):
         form = self.form()
-        return render.new(form)
+        return render.post_create(form)
         
     @csrf_protected # Verify this is not CSRF, or fail
     def POST(self):
@@ -107,13 +107,13 @@ class Update:
 
     def GET(self, id):
         post = model.post(int(id))
-        form = New.form()
+        form = Create.form()
         form.fill(post)
-        return render.edit(post, form)
+        return render.post_update(post, form)
 
     @csrf_protected # Verify this is not CSRF, or fail
     def POST(self, id):
-        form = New.form()
+        form = Create.form()
         post = model.post(int(id))
         if not form.validates():
             return render.edit(post, form)
