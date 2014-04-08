@@ -7,9 +7,9 @@ import config
 urls = (
     '/', 'Posts',
     '/post/(\d+)', 'Post',
-    '/create', 'Create',
-    '/post/(\d+)/delete', 'Delete',
-    '/post/(\d+)/update', 'Update',
+    '/create', 'Post_Create',
+    '/post/(\d+)/delete', 'Post_Delete',
+    '/post/(\d+)/update', 'Post_Update',
     '/login_fake/(.+)', 'LoginFake',
     '/logout', 'LogOut',
 )
@@ -69,8 +69,8 @@ class Post:
         post = model.post(int(id))
         return render.post(post)
 
-### Class Create - renders form to create new entry and handles POST request to add it the database
-class Create:
+### Class Post_Create - renders form to create new entry and handles POST request to add it the database
+class Post_Create:
 
     form = web.form.Form(
         web.form.Textbox('title', web.form.notnull, 
@@ -94,26 +94,26 @@ class Create:
         model.post_create(form.d.title, form.d.content)
         raise web.seeother('/')
 
-### Class Delete - handles POST request to delete entry by id
-class Delete:
+### Class Post_Delete - handles POST request to delete entry by id
+class Post_Delete:
 
     @csrf_protected # Verify this is not CSRF, or fail
     def POST(self, id):
         model.post_delete(int(id))
         raise web.seeother('/')
 
-### Class Update - renders form to edit entries by id and handles POST request to update entry in database
-class Update:
+### Class Post_Update - renders form to edit entries by id and handles POST request to update entry in database
+class Post_Update:
 
     def GET(self, id):
         post = model.post(int(id))
-        form = Create.form()
+        form = Post_Create.form()
         form.fill(post)
         return render.post_update(post, form)
 
     @csrf_protected # Verify this is not CSRF, or fail
     def POST(self, id):
-        form = Create.form()
+        form = Post_Create.form()
         post = model.post(int(id))
         if not form.validates():
             return render.edit(post, form)
