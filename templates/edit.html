@@ -9,7 +9,7 @@ $:form.render()
 
 
 <h2>Delete post</h2>
-<form action="/delete/$post.id" method="post">
+<form action="/post/$post.id/delete" method="post">
     <input type="hidden" name="csrf_token" value="$csrf_token()"/>
     <input type="submit" value="Delete post"/>
 </form>

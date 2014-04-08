@@ -1,14 +1,15 @@
 """ Basic blog using webpy 0.3 """
 import web
 import model
+import config
 
 ### Define urls """
 urls = (
-    '/', 'Index',
-    '/view/(\d+)', 'View',
-    '/new', 'New',
-    '/delete/(\d+)', 'Delete',
-    '/edit/(\d+)', 'Edit',
+    '/', 'Posts',
+    '/post/(\d+)', 'Post',
+    '/create', 'Create',
+    '/post/(\d+)/delete', 'Delete',
+    '/post/(\d+)/update', 'Update',
     '/login_fake/(.+)', 'LoginFake',
     '/logout', 'LogOut',
 )
@@ -52,24 +53,24 @@ def user_name():
 ### Define template base and pass some globals
 render = web.template.render('templates', base='base', globals={'csrf_token': csrf_token, 'datestr': web.datestr, 'user_name': user_name})
 
-### Class Index - renders main page with list of entries, and links to post new ones.
-class Index:
+### Class Posts - renders main page with list of entries, and links to post new ones.
+class Posts:
 
     def GET(self):
         """ Show page """
-        posts = model.get_posts()
+        posts = model.posts()
         return render.index(posts)
 
-### Class View - renders singular entry
-class View:
+### Class Post - renders singular entry
+class Post:
 
     def GET(self, id):
         """ View single post """
-        post = model.get_post(int(id))
+        post = model.post(int(id))
         return render.view(post)
 
-### Class New - renders form to create new entry and handles POST request to add it the database
-class New:
+### Class Create - renders form to create new entry and handles POST request to add it the database
+class Create:
 
     form = web.form.Form(
         web.form.Textbox('title', web.form.notnull, 
@@ -90,7 +91,7 @@ class New:
         form = self.form()
         if not form.validates():
             return render.new(form)
-        model.new_post(form.d.title, form.d.content)
+        model.post_create(form.d.title, form.d.content)
         raise web.seeother('/')
 
 ### Class Delete - handles POST request to delete entry by id
@@ -98,14 +99,14 @@ class Delete:
 
     @csrf_protected # Verify this is not CSRF, or fail
     def POST(self, id):
-        model.del_post(int(id))
+        model.post_delete(int(id))
         raise web.seeother('/')
 
-### Class Edit - renders form to edit entries by id and handles POST request to update entry in database
-class Edit:
+### Class Update - renders form to edit entries by id and handles POST request to update entry in database
+class Update:
 
     def GET(self, id):
-        post = model.get_post(int(id))
+        post = model.post(int(id))
         form = New.form()
         form.fill(post)
         return render.edit(post, form)
@@ -113,10 +114,10 @@ class Edit:
     @csrf_protected # Verify this is not CSRF, or fail
     def POST(self, id):
         form = New.form()
-        post = model.get_post(int(id))
+        post = model.post(int(id))
         if not form.validates():
             return render.edit(post, form)
-        model.update_post(int(id), form.d.title, form.d.content)
+        model.post_update(int(id), form.d.title, form.d.content)
         raise web.seeother('/')
 
 class LoginFake:
