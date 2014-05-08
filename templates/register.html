@@ -1,0 +1,13 @@
+$def with (form, msg)
+$var title: Register
+
+<h1>Register!</h1>
+
+$if msg:
+	<div class="alert alert-error">$msg</div>
+<form class="form-horizontal" method="POST">
+	<input type="hidden" name="csrf_token" value="$csrf_token()"/>
+	$:form.render()
+</form>
+
+<div class="alert alert-info"><p class="reset"><a href="/login">Already a member? Log in!</a></p></div>

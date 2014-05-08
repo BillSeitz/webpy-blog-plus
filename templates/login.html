@@ -1,0 +1,19 @@
+$def with (form, msg=None)
+$var title: Log In!
+
+<h1>Log in</h1>
+<div class="alert alert-error">
+$if msg == 'fail':
+  Invalid username or password
+$elif msg == 'suspended':
+  Your account has been suspended
+</div>
+
+<form class="form-horizontal" method="POST">
+	<input type="hidden" name="csrf_token" value="$csrf_token()"/>
+	$:form.render()
+</form>
+
+<div class="alert alert-info"><p class="reset"><a href="password_reset">Forgot your username or password?</a></p></div>
+
+<div class="alert alert-info"><p class="reset"><a href="/register">Not a member yet? Register!</a></p></div>
