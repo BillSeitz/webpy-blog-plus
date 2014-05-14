@@ -5,7 +5,7 @@ from config import db
 
 def posts():
     #return db.select('entries', order='id DESC')
-    return db.query("SELECT * FROM entries e, users u WHERE e.user_id=u.user_id ORDER by id DESC")
+    return db.query("SELECT e.*, u.user_name FROM entries e LEFT OUTER JOIN users u ON e.user_id = u.user_id ORDER by e.id DESC")
 
 def post(id):
     try:
