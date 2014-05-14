@@ -54,14 +54,18 @@ def csrf_protected(f):
         return f(*args,**kwargs)
     return decorated
 
+def datestr(posted_on):
+    datetime_obj = datetime.strptime(posted_on,'%Y-%m-%d %H:%M:%S.%f')
+    return web.datestr(datetime_obj)
+    
 def user_name():
     if not session.has_key('user_name'):
         session.user_name = None
     return session.user_name
 
 ### Define template base and pass some globals
-render = web.template.render('templates', base='base', globals={'context': session, 'csrf_token': csrf_token, 'datestr': web.datestr, 'user_name': user_name})
-render_email = web.template.render('templates/', globals={'context': session, 'csrf_token': csrf_token, 'datestr': web.datestr, 'user_name': user_name})
+render = web.template.render('templates', base='base', globals={'context': session, 'csrf_token': csrf_token, 'datestr': datestr, 'user_name': user_name})
+render_email = web.template.render('templates/', globals={'context': session, 'csrf_token': csrf_token, 'datestr': datestr, 'user_name': user_name})
 
 ### Class Posts - renders main page with list of entries, and links to post new ones.
 class Posts:
