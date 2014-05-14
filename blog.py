@@ -105,7 +105,7 @@ class Post_Create:
         form = self.form()
         if not form.validates():
             return render.new(form)
-        model.post_create(form.d.title, form.d.content)
+        model.post_create(form.d.title, form.d.content, session.user_id)
         raise web.seeother('/')
 
 ### Class Post_Delete - handles POST request to delete entry by id

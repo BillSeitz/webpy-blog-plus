@@ -13,8 +13,8 @@ def post(id):
     except IndexError:
         return None
 
-def post_create(title, text):
-    db.insert('entries', title=title, content=text, posted_on=datetime.datetime.utcnow())
+def post_create(title, text, user_id):
+    db.insert('entries', title=title, content=text, posted_on=datetime.datetime.utcnow(), user_id=user_id)
 
 def post_delete(id):
     db.delete('entries', where="id=$id", vars=locals())
